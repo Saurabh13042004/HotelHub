@@ -17,11 +17,24 @@ import {
   LinkedinShareButton
 } from 'react-share';
 
-interface BookingDetails {
+interface RoomSelection {
   roomId: number;
   roomName: string;
   price: string;
   date: Date;
+}
+
+interface BookingDetails {
+  selections: RoomSelection[];
+  totalPrice: string;
+}
+
+interface BookingForm {
+  name: string;
+  email: string;
+  phone: string;
+  guests: number;
+  specialRequests: string;
 }
 
 interface Hotel {
@@ -45,8 +58,8 @@ const HotelView: React.FC = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [selectedBooking, setSelectedBooking] = useState<BookingDetails | null>(null);
-  const [bookingForm, setBookingForm] = useState({
+  const [selectedRooms, setSelectedRooms] = useState<RoomSelection[]>([]);
+  const [bookingForm, setBookingForm] = useState<BookingForm>({
     name: '',
     email: '',
     phone: '',
@@ -99,15 +112,43 @@ const HotelView: React.FC = () => {
     return date;
   });
 
-  const handleBookingClick = (roomId: number, date: Date) => {
+  const handleRoomSelection = (roomId: number, date: Date) => {
     const room = rooms.find(r => r.id === roomId);
     if (room) {
-      setSelectedBooking({
+      const newSelection: RoomSelection = {
         roomId,
         roomName: room.name,
         price: room.price,
         date
-      });
+      };
+
+      // Check if this room and date combination is already selected
+      const existingSelection = selectedRooms.find(
+        s => s.roomId === roomId && s.date.getTime() === date.getTime()
+      );
+
+      if (existingSelection) {
+        // If already selected, remove it
+        setSelectedRooms(selectedRooms.filter(
+          s => !(s.roomId === roomId && s.date.getTime() === date.getTime())
+        ));
+      } else {
+        // Add new selection
+        setSelectedRooms([...selectedRooms, newSelection]);
+      }
+    }
+  };
+
+  const calculateTotalPrice = () => {
+    const total = selectedRooms.reduce((sum, selection) => {
+      const price = parseInt(selection.price.replace(/[^0-9]/g, ''));
+      return sum + price;
+    }, 0);
+    return `₹${total.toLocaleString()}`;
+  };
+
+  const handleBookNowClick = () => {
+    if (selectedRooms.length > 0) {
       setShowBookingModal(true);
     }
   };
@@ -115,9 +156,9 @@ const HotelView: React.FC = () => {
   const handleBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle booking submission here
-    console.log('Booking submitted:', { selectedBooking, bookingForm });
+    console.log('Booking submitted:', { selectedRooms, bookingForm });
     setShowBookingModal(false);
-    setSelectedBooking(null);
+    setSelectedRooms([]);
     setBookingForm({
       name: '',
       email: '',
@@ -128,58 +169,100 @@ const HotelView: React.FC = () => {
   };
 
   const renderCalendar = () => (
-    <div className="overflow-x-auto bg-gray-50 rounded-lg p-4">
-      <table className="min-w-full">
-        <thead>
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Rooms
-            </th>
-            {days.map((day, index) => (
-              <th
-                key={index}
-                className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                {day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+    <div className="space-y-6">
+      <div className="overflow-x-auto bg-gray-50 rounded-lg p-4">
+        <table className="min-w-full">
+          <thead>
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Rooms
               </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {rooms.map((room) => (
-            <tr key={room.id}>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0 h-20 w-32">
-                    <img className="h-20 w-32 object-cover rounded-lg" src={room.image} alt={room.name} />
-                  </div>
-                  <div className="ml-4">
-                    <div className="text-sm font-medium text-gray-900">{room.name}</div>
-                    <div className="text-sm text-gray-500">{room.price}/night</div>
-                    <div className="text-xs text-gray-400">{room.capacity}</div>
-                  </div>
-                </div>
-              </td>
-              {room.availability.map((available, index) => (
-                <td key={index} className="px-6 py-4 whitespace-nowrap text-center">
-                  {available ? (
-                    <button
-                      onClick={() => handleBookingClick(room.id, days[index])}
-                      className="w-24 h-12 bg-gradient-to-r from-green-500 to-green-600 text-white font-medium rounded-lg shadow-md hover:from-green-600 hover:to-green-700 transition-all duration-200 flex items-center justify-center"
-                    >
-                      Available
-                    </button>
-                  ) : (
-                    <div className="w-24 h-12 bg-gradient-to-r from-red-500 to-red-600 text-white font-medium rounded-lg shadow-md flex items-center justify-center">
-                      Booked
-                    </div>
-                  )}
-                </td>
+              {days.map((day, index) => (
+                <th
+                  key={index}
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  {day.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {rooms.map((room) => (
+              <tr key={room.id}>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div className="flex-shrink-0 h-20 w-32">
+                      <img className="h-20 w-32 object-cover rounded-lg" src={room.image} alt={room.name} />
+                    </div>
+                    <div className="ml-4">
+                      <div className="text-sm font-medium text-gray-900">{room.name}</div>
+                      <div className="text-sm text-gray-500">{room.price}/night</div>
+                      <div className="text-xs text-gray-400">{room.capacity}</div>
+                    </div>
+                  </div>
+                </td>
+                {room.availability.map((available, index) => {
+                  const isSelected = selectedRooms.some(
+                    s => s.roomId === room.id && s.date.getTime() === days[index].getTime()
+                  );
+                  return (
+                    <td key={index} className="px-6 py-4 whitespace-nowrap text-center">
+                      {available ? (
+                        <button
+                          onClick={() => handleRoomSelection(room.id, days[index])}
+                          className={`w-24 h-12 text-white font-medium rounded-lg shadow-md transition-all duration-200 flex items-center justify-center
+                            ${isSelected 
+                              ? 'bg-blue-600 hover:bg-blue-700' 
+                              : 'bg-green-500 hover:bg-green-600'}`}
+                        >
+                          {isSelected ? 'Selected' : 'Available'}
+                        </button>
+                      ) : (
+                        <div className="w-24 h-12 bg-red-500 text-white font-medium rounded-lg shadow-md flex items-center justify-center">
+                          Booked
+                        </div>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {selectedRooms.length > 0 && (
+        <div className="bg-white p-4 rounded-lg shadow-md">
+          <h3 className="text-lg font-semibold mb-4">Selected Rooms</h3>
+          <div className="space-y-2">
+            {selectedRooms.map((selection, index) => (
+              <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <div>
+                  <span className="font-medium">{selection.roomName}</span>
+                  <span className="text-gray-500 ml-2">
+                    {selection.date.toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric' 
+                    })}
+                  </span>
+                </div>
+                <span className="font-medium">{selection.price}</span>
+              </div>
+            ))}
+            <div className="flex justify-between items-center pt-4 border-t">
+              <span className="font-semibold">Total Price:</span>
+              <span className="font-semibold text-lg">{calculateTotalPrice()}</span>
+            </div>
+          </div>
+          <button
+            onClick={handleBookNowClick}
+            className="mt-4  max-w-fit bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium shadow-md"
+          >
+            Book Now
+          </button>
+        </div>
+      )}
     </div>
   );
 
@@ -284,11 +367,11 @@ const HotelView: React.FC = () => {
       </div>
 
       {/* Booking Modal */}
-      {showBookingModal && selectedBooking && (
+      {showBookingModal && selectedRooms.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h3 className="text-xl font-semibold text-gray-900">Book Your Stay</h3>
+              <h3 className="text-xl font-semibold text-gray-900">Complete Your Booking</h3>
               <button
                 onClick={() => setShowBookingModal(false)}
                 className="text-gray-500 hover:text-gray-700 transition-colors"
@@ -300,25 +383,27 @@ const HotelView: React.FC = () => {
             <div className="px-6 py-4">
               <form onSubmit={handleBookingSubmit} className="space-y-6">
                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <div className="text-sm text-gray-600">Selected Room</div>
-                      <div className="font-semibold text-gray-900">{selectedBooking.roomName}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-600">Date</div>
-                      <div className="font-semibold text-gray-900">
-                        {selectedBooking.date.toLocaleDateString('en-US', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
+                  <h4 className="font-semibold mb-3">Selected Rooms</h4>
+                  <div className="space-y-2">
+                    {selectedRooms.map((selection, index) => (
+                      <div key={index} className="flex justify-between items-center p-2 bg-white rounded">
+                        <div>
+                          <span className="font-medium">{selection.roomName}</span>
+                          <span className="text-gray-500 ml-2">
+                            {selection.date.toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </span>
+                        </div>
+                        <span className="font-medium">{selection.price}</span>
                       </div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-gray-600">Price</div>
-                      <div className="font-semibold text-gray-900">{selectedBooking.price}</div>
+                    ))}
+                    <div className="flex justify-between items-center pt-3 border-t border-blue-200">
+                      <span className="font-semibold">Total Price:</span>
+                      <span className="font-semibold text-lg">{calculateTotalPrice()}</span>
                     </div>
                   </div>
                 </div>
@@ -358,11 +443,11 @@ const HotelView: React.FC = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Number of Guests</label>
+                    <label className="block text-sm font-medium text-gray-700">Total Number of Guests</label>
                     <input
                       type="number"
                       min="1"
-                      max="4"
+                      max="8"
                       value={bookingForm.guests}
                       onChange={(e) => setBookingForm({...bookingForm, guests: parseInt(e.target.value)})}
                       className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
