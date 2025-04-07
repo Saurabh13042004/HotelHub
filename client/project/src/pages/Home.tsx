@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Download, Search, Calendar, Clock, Shield, Wifi, Dumbbell, HeadphonesIcon, School as Pool, Utensils, BookOpen, Star, Send } from 'lucide-react';
+import { Download,LogIn, PhoneCall,MapPin,Search, Key , PiggyBank,Wifi, Dumbbell, HeadphonesIcon, School as  BookOpen, Star, Send } from 'lucide-react';
 
 const Home = () => {
   const rooms = [
@@ -116,20 +116,20 @@ const Home = () => {
           </div>
           <div className="flex items-center gap-4">
             <div className="bg-orange-100 p-4 rounded-full">
-              <Pool className="h-8 w-8 text-orange-500" />
+              <Key className="h-8 w-8 text-orange-500" />
             </div>
             <div>
-              <h3 className="font-semibold">Swimming Pool</h3>
-              <p className="text-gray-600">Luxury pools in every location</p>
+              <h3 className="font-semibold">Instant Acess</h3>
+              <p className="text-gray-600">No Login Just walk in</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="bg-orange-100 p-4 rounded-full">
-              <Utensils className="h-8 w-8 text-orange-500" />
+              <PiggyBank className="h-8 w-8 text-orange-500" />
             </div>
             <div>
-              <h3 className="font-semibold">Restaurant</h3>
-              <p className="text-gray-600">Fine dining experience</p>
+              <h3 className="font-semibold">Zerofees</h3>
+              <p className="text-gray-600">More bookings, zero deductions</p>
             </div>
           </div>
         </div>
@@ -176,34 +176,34 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-4xl font-bold text-center mb-4">Our Services</h2>
           <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
-            We offer a comprehensive range of services to ensure your stay is comfortable and memorable.
+            We offer a comprehensive range of services to ensure your booking experience is seamless and enjoyable.
           </p>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Wifi className="h-8 w-8 text-orange-500" />
+                <LogIn className="h-8 w-8 text-orange-500" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Free WiFi</h3>
               <p className="text-gray-600">
-                High-speed internet access throughout the property
+              Instant Booking, No Sign-Up
               </p>
             </div>
             <div className="text-center">
               <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Dumbbell className="h-8 w-8 text-orange-500" />
+                <MapPin className="h-8 w-8 text-orange-500" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Fitness Center</h3>
+              <h3 className="text-xl font-semibold mb-2"> Map-Based Discovery</h3>
               <p className="text-gray-600">
-                Modern equipment and personal training services
+              Explore hotels visually on an interactive map
               </p>
             </div>
             <div className="text-center">
               <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <HeadphonesIcon className="h-8 w-8 text-orange-500" />
+                <PhoneCall className="h-8 w-8 text-orange-500" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">24/7 Support</h3>
+              <h3 className="text-xl font-semibold mb-2"> Direct Hotel Contact</h3>
               <p className="text-gray-600">
-                Round-the-clock assistance for all your needs
+                Get in touch with hotel staff directly for inquiries
               </p>
             </div>
           </div>

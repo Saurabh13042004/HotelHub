@@ -7,6 +7,10 @@ import Home from './pages/Home';
 import BookingSearch from './pages/BookingSearch';
 import BookingDetails from './pages/BookingDetails';
 import HotelView from './pages/HotelView';
+import AboutUs from './components/AboutUs';
+import ContactUs from './components/ContactUs';
+import Chatbot from './components/Chatbot';
+import SearchHotels from './pages/SearchHotels';
 
 function App() {
   return (
@@ -20,9 +24,14 @@ function App() {
             <Route path="/search" element={<BookingSearch />} />
             <Route path="/booking/:id" element={<BookingDetails />} />
             <Route path="/hotel/:hotelId" element={<HotelView />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/searchhotel" element={<SearchHotels />} />
+          <Route path="/contact" element={<ContactUs />} />
+     
           </Routes>
         </main>
         <Footer />
+        <Chatbot />
       </div>
     </BrowserRouter>
   );
